@@ -1,0 +1,135 @@
+<div class="mt-5">
+
+  <div class="mt-2 mb-3">
+    <p-dropdown 
+    [options]="data" 
+    optionLabel="name" 
+    [showClear]="true"
+    [filter]="true" 
+    filterBy="name" 
+    placeholder="Select a category" />
+  </div>
+ 
+
+  <div class="card w-50">
+    <p-fileUpload
+    url="https://www.primefaces.org/cdn/api/upload.php"
+    name="myfile[]"
+    [multiple]="true"
+    accept="image/*,application/pdf"
+    maxFileSize="1000000"
+    
+  >
+    <ng-template
+      pTemplate="header"
+      let-files
+      let-chooseCallback="chooseCallback"
+      let-clearCallback="clearCallback"
+      let-uploadCallback="uploadCallback"
+    >
+      
+        <div class="btn-container">
+          <p-button
+          (onClick)="choose($event, chooseCallback)"
+            label="Choose files"
+            icon="pi pi-file"
+            [rounded]="true"
+          />
+          <p-button
+            label="Upload File"
+            (onClick)="uploadEvent(uploadCallback)"
+            icon="pi pi-cloud-upload"
+            [rounded]="true"
+            severity="success"
+            [disabled]="!files || files.length === 0"
+          />
+          <p-button
+          label="Clear all"
+            icon="pi pi-times"
+            [rounded]="true"
+            (onClick)="clearCallback()"
+            severity="danger"
+            [disabled]="!files || files.length === 0"
+          />
+        </div>
+       
+      
+    </ng-template>
+    <ng-template
+      pTemplate="content"
+      let-files
+      let-uploadedFiles="uploadedFiles"
+      let-removeFileCallback="removeFileCallback"
+      let-removeUploadedFileCallback="removeUploadedFileCallback"
+    >
+  
+    <!-- user added files from the machine -->
+      <div *ngIf="files?.length > 0">
+        <h5>Pending</h5>
+        <div class="flex flex-wrap p-0 sm:p-5 gap-5">
+          <div
+            *ngFor="let file of files; let i = index"
+            class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3"
+          >
+            <div>
+              <img
+                role="presentation"
+                [alt]="file.name"
+                [src]="file.objectURL"
+                width="100"
+                height="50"
+              />
+            </div>
+            <span class="font-semibold">{{ file.name }}</span>
+            <p-button label="Remove" icon="pi pi-trash" (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback,i)" [rounded]="true" severity="danger" />
+  
+          </div>
+        </div>
+      </div>
+  
+      <!-- file uploaded completed -->
+      <div *ngIf="uploadedFiles?.length > 0">
+        <h5>Completed</h5>
+        <div class="flex flex-wrap p-0 sm:p-5 gap-5">
+          <div
+            *ngFor="let file of uploadedFiles; let i = index"
+            class="card m-0 px-6 flex flex-row border-1 surface-border align-items-center gap-3"
+          >
+            <div>
+              <img
+                role="presentation"
+                [alt]="file.name"
+                [src]="file.objectURL"
+                width="100"
+                height="50"
+              />
+            </div>
+  
+            <p-button
+            label="remove"
+              icon="pi pi-trash"
+              [outlined]="true"
+              [rounded]="true"
+              severity="danger"
+              (onClick)="removeUploadedFileCallback(file)"
+            />
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  
+    <ng-template pTemplate="file"> </ng-template>
+    <ng-template pTemplate="empty">
+      <div class="m-auto">
+        <i
+        style="font-size: 5rem"
+          class="pi pi-cloud-upload border-2 border-circle p-5 text-8xl text-400 border-400"
+        ></i>
+        <p class="mt-4 mb-0">Drag and drop files here to upload.</p>
+      </div>
+    </ng-template>
+  </p-fileUpload>
+  
+  </div>
+  
+</div>

@@ -1,0 +1,125 @@
+<div class="bg-container">
+  <div class="total-container">
+
+    <div class="image-container">
+      <img [src]="logoImage" alt="login-logo" class="image">
+    </div>
+
+    <!-- Login Form -->
+    <div class="heading-container" *ngIf="isLoginForm">
+      <h3 class="welcome-text">Welcome Back..!</h3>
+
+      <form [formGroup]="loginForm">
+        <div class="field-container">
+          <label for="login-email" class="email">Enter Email ID<span class="text-danger">*</span></label>
+          <input type="email" pTooltip="Enter your Email" tooltipPosition="bottom" id="login-email"
+            class="email-input" placeholder="Enter Email address" formControlName="email" required />
+
+          <div
+            *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)">
+            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('email')?.errors?.['required']">Email is
+              required field*</small>
+            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('email')?.errors?.['email']">Invalid Email
+              Address format*</small>
+          </div>
+        </div>
+
+        <div class="password-field-container ">
+          <label for="password" class="label-style">Enter Password <span class="text-danger">*</span></label>
+          <div class="password-input-container">
+            <input type="password" id="login-password" pTooltip="Enter your Password" tooltipPosition="bottom"
+              placeholder="Enter Password" formControlName="password" [type]="hidePassword ? 'password' : 'text'" />
+            <span type="button" class="password-toggle-button" (click)="togglePasswordVisibility()">{{hidePassword ?
+              'show' : 'hide'}}</span>
+          </div>
+          <div
+            *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)">
+            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('password')?.errors?.['required']">Password
+              is required field*</small>
+            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('password')?.errors?.['minlength']">Password
+              must be at least 6 characters*</small>
+          </div>
+        </div>
+
+        <button class="next-button" pTooltip="Login" (click)="userLogin()" tooltipPosition="bottom">
+          Login
+        </button>
+      </form>
+
+      <p style="text-align: center; margin-top: 8px;font-family: sans-serif;font-size: medium;">
+        Don't have an account? <span class="login-now" pTooltip="SignUp" tooltipPosition="bottom" (click)="toggleForm()">SignUp</span>
+      </p>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div class="heading-container" *ngIf="!isLoginForm">
+      <h2 class="create-text">Create Account</h2>
+      <div class="signUpForm-container">
+        <form [formGroup]="signupForm">
+
+          <div class="field-container">
+            <label for="fname" class="email">Enter Full Name</label>
+            <input type="text" id="fname" pTooltip="Enter Full Name" tooltipPosition="bottom"
+              placeholder="Enter full Name" formControlName="name" required />
+            <div
+              *ngIf="signupForm.get('name')?.invalid && (signupForm.get('name')?.dirty || signupForm.get('name')?.touched)">
+              <small style="color: rgb(225, 17, 17);font-size: 11px;"
+                *ngIf="signupForm.get('name')?.errors?.['required']">Full Name is required field*</small>
+            </div>
+          </div>
+
+          <div class="field-container">
+            <label for="signup-email" class="email">Enter Email ID</label>
+            <input type="email" id="signup-email" pTooltip="Enter Email ID" tooltipPosition="bottom"
+              placeholder="Enter Email address" formControlName="email" required />
+            <div
+              *ngIf="signupForm.get('email')?.invalid && (signupForm.get('email')?.dirty || signupForm.get('email')?.touched)">
+              <small style="color: rgb(225, 17, 17);font-size: 11px;" *ngIf="signupForm.get('email')?.errors?.['required']">Email is
+                required field*</small>
+              <small style="color: rgb(225, 17, 17);font-size: 11px;" *ngIf="signupForm.get('email')?.errors?.['email']">Invalid
+                Email Address format*</small>
+            </div>
+          </div>
+
+          <div class="field-container">
+            <label for="mobile" class="email">Enter Mobile No.</label>
+            <input type="number" maxlength="10" pTooltip="Enter Mobile No." tooltipPosition="bottom" id="mobile"
+              placeholder="+91  Enter Mobile No." formControlName="mobile" required />
+            <div
+              *ngIf="signupForm.get('mobile')?.invalid && (signupForm.get('mobile')?.dirty || signupForm.get('mobile')?.touched)">
+              <small style="color: rgb(225, 17, 17);font-size:11px;" *ngIf="signupForm.get('mobile')?.errors?.['required']">Mobile No. is
+                required field*</small>
+              <small style="color: rgb(225, 17, 17); font-size: 11px;" *ngIf="signupForm.get('mobile')?.errors?.['pattern']">Please enter a valid 10-digit mobile number*</small>
+            </div>
+          </div>
+
+          <div class="field-container">
+            <label class="email" for="signup-password">Enter Password</label>
+            <div class="password-input-container">
+              <input type="password" id="signup-password" pTooltip="Enter Password" tooltipPosition="bottom"
+                placeholder="Enter Password" formControlName="password"
+                [type]="hidePassword ? 'password' : 'text'" />
+              <span type="button" class="password-toggle-button" (click)="togglePasswordVisibility()">{{hidePassword
+                ? 'show' : 'hide'}}</span>
+            </div>
+
+            <div
+              *ngIf="signupForm.get('password')?.invalid && (signupForm.get('password')?.dirty || signupForm.get('password')?.touched)">
+              <small style="color: rgb(225, 17, 17);font-size: 11px;" *ngIf="signupForm.get('password')?.errors?.['required']">Password is required field*</small>
+              <small style="color: rgb(225, 17, 17);font-size:11px;" *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters*</small>
+            </div>
+          </div>
+
+          <button class="next-button" pTooltip="SignUp" (click)="userSignup()" tooltipPosition="bottom">
+            Sign Up
+          </button>
+
+          <p style="text-align: center; margin-top: 8px;font-family: sans-serif;font-size: medium;">
+            Already have an account? <span class="login-now" pTooltip="Login" tooltipPosition="bottom" (click)="toggleForm()">Login</span>
+          </p>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

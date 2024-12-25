@@ -1,0 +1,34 @@
+$breakpoint-small: 576px;
+$breakpoint-medium: 768px;
+$breakpoint-large: 1280px;
+$breakpoint-xlarge: 1920px;
+
+@import "primeicons/primeicons.css";
+
+// Mixin for small devices (mobile)
+@mixin respond-to-small {
+  @media (max-width: #{$breakpoint-small}) {
+    @content;
+  }
+}
+
+// Mixin for medium devices (tablets)
+@mixin respond-to-medium {
+  @media(min-width: #{$breakpoint-medium}) {
+    @content;
+  }
+}
+
+// Mixin for large devices (desktop)
+@mixin respond-to-large {
+  @media (min-width: #{$breakpoint-large}) {
+    @content;
+  }
+}
+
+// Mixin for extra large devices (widescreens)
+@mixin respond-to-xlarge {
+  @media (min-width: #{$breakpoint-xlarge}) {
+    @content;
+  }
+}
