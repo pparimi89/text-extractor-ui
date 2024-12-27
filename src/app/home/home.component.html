@@ -1,135 +1,88 @@
-<div class="mt-5">
 
-  <div class="mt-2 mb-3">
+ <div class="main">
+  <div class="drop-down">
     <p-dropdown 
-    [options]="data" 
+    [options]="categoryList" 
     optionLabel="name" 
+    optionValue="code"
     [showClear]="true"
     [filter]="true" 
     filterBy="name" 
+    [appendTo]="'body'"
+    (onChange)="onCategoryChange($event)"
     placeholder="Select a category" />
   </div>
- 
 
-  <div class="card w-50">
-    <p-fileUpload
-    url="https://www.primefaces.org/cdn/api/upload.php"
-    name="myfile[]"
-    [multiple]="true"
-    accept="image/*,application/pdf"
-    maxFileSize="1000000"
-    
-  >
-    <ng-template
-      pTemplate="header"
-      let-files
-      let-chooseCallback="chooseCallback"
-      let-clearCallback="clearCallback"
-      let-uploadCallback="uploadCallback"
+  <div class="card upload-container">
+    <!-- Header Buttons -->
+    <div class="upload-header">
+      <button class="btn btn-primary"  (click)="chooseFiles()">Choose files</button>
+      <button class="btn btn-success" (click)="uploadFiles()" [disabled]="files.length === 0">Upload File</button>
+      <button class="btn btn-danger" (click)="clearFiles()" [disabled]="files.length === 0">Clear all</button>
+    </div>
+  
+    <!-- progress bar -->
+    <div class="progress mb-3" *ngIf="uploadProgress > 0">
+      <div 
+        class="progress-bar" 
+        role="progressbar" 
+        [style.width.%]="uploadProgress" 
+        [attr.aria-valuenow]="uploadProgress" 
+        aria-valuemin="0" 
+        aria-valuemax="100"
+      >
+        {{ uploadProgress }}%
+        {{uploadProgress==100 ? " Completed" : " Uploading"}}
+      </div>
+    </div>
+  
+    <!-- Dropzone -->
+    <div
+      class="upload-dropzone"
+      (dragover)="handleDragOver($event)"
+      (drop)="handleDrop($event)"
     >
-      
-        <div class="btn-container">
-          <p-button
-          (onClick)="choose($event, chooseCallback)"
-            label="Choose files"
-            icon="pi pi-file"
-            [rounded]="true"
-          />
-          <p-button
-            label="Upload File"
-            (onClick)="uploadEvent(uploadCallback)"
-            icon="pi pi-cloud-upload"
-            [rounded]="true"
-            severity="success"
-            [disabled]="!files || files.length === 0"
-          />
-          <p-button
-          label="Clear all"
-            icon="pi pi-times"
-            [rounded]="true"
-            (onClick)="clearCallback()"
-            severity="danger"
-            [disabled]="!files || files.length === 0"
-          />
-        </div>
-       
-      
-    </ng-template>
-    <ng-template
-      pTemplate="content"
-      let-files
-      let-uploadedFiles="uploadedFiles"
-      let-removeFileCallback="removeFileCallback"
-      let-removeUploadedFileCallback="removeUploadedFileCallback"
-    >
-  
-    <!-- user added files from the machine -->
-      <div *ngIf="files?.length > 0">
-        <h5>Pending</h5>
-        <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-          <div
-            *ngFor="let file of files; let i = index"
-            class="card m-0 px-6 flex flex-column border-1 surface-border align-items-center gap-3"
-          >
-            <div>
-              <img
-                role="presentation"
-                [alt]="file.name"
-                [src]="file.objectURL"
-                width="100"
-                height="50"
-              />
-            </div>
-            <span class="font-semibold">{{ file.name }}</span>
-            <p-button label="Remove" icon="pi pi-trash" (onClick)="onRemoveTemplatingFile($event, file, removeFileCallback,i)" [rounded]="true" severity="danger" />
-  
-          </div>
-        </div>
+      <div class="drop-icon">
+        <i style="font-size: 5rem" class="pi pi-cloud-upload"></i>
       </div>
+      <p>Drag and drop files here to upload.</p>
+    </div>
   
-      <!-- file uploaded completed -->
-      <div *ngIf="uploadedFiles?.length > 0">
-        <h5>Completed</h5>
-        <div class="flex flex-wrap p-0 sm:p-5 gap-5">
-          <div
-            *ngFor="let file of uploadedFiles; let i = index"
-            class="card m-0 px-6 flex flex-row border-1 surface-border align-items-center gap-3"
-          >
-            <div>
-              <img
-                role="presentation"
-                [alt]="file.name"
-                [src]="file.objectURL"
-                width="100"
-                height="50"
-              />
-            </div>
-  
-            <p-button
-            label="remove"
-              icon="pi pi-trash"
-              [outlined]="true"
-              [rounded]="true"
-              severity="danger"
-              (onClick)="removeUploadedFileCallback(file)"
-            />
-          </div>
-        </div>
+    <!-- File Preview -->
+    <div class="file-preview">
+      <div *ngFor="let file of files" class="file-preview-item">
+        <img *ngIf="file.type.startsWith('image')" [src]="file.previewUrl" [alt]="file.name" />
+        <span *ngIf="file.type === 'application/pdf'">{{ file.name }}</span>
+        <i style="font-size: 1rem;color: red;" (click)="removeFile(file)" class="pi pi-trash"></i>
+
       </div>
-    </ng-template>
-  
-    <ng-template pTemplate="file"> </ng-template>
-    <ng-template pTemplate="empty">
-      <div class="m-auto">
-        <i
-        style="font-size: 5rem"
-          class="pi pi-cloud-upload border-2 border-circle p-5 text-8xl text-400 border-400"
-        ></i>
-        <p class="mt-4 mb-0">Drag and drop files here to upload.</p>
-      </div>
-    </ng-template>
-  </p-fileUpload>
-  
+    </div>
   </div>
-  
-</div>
+ </div>
+
+ <p-confirmDialog [position]="'top'" />
+
+
+ <div class="mt-3 mb-4">
+  <div class="card w-75 m-auto">
+    <p-table [value]="tableData" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Code</th>
+                <!-- <th>User Name</th> -->
+                <th>Category</th>
+                <th>Amount</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>{{ product.id }}</td>
+                <!-- <td>{{ product.name }}</td> -->
+                <td>{{ product.category }}</td>
+                <td>{{ product.fileAmount }}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+  </div>
+ </div>
+ 

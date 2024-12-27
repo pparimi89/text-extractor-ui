@@ -1,9 +1,101 @@
-.btn-container{
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: start; 
+  align-items: stretch;
+  width: 55%;
+  margin: auto ;
+}
+
+
+.upload-container{
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  width: 100%;
+}
+.drop-down{
+  margin: 15px 0 15px 0;
+}
+
+.upload-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.upload-dropzone {
+  border: 2px dashed #ddd;
+  padding: 20px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-dropzone:hover {
+  border-color: #007bff;
+}
+
+.file-preview {
+  margin-top: 20px;
   display: flex;
   flex-direction: row;
-  justify-content: start;
   align-items: center;
+  justify-content: start;
+  gap: 5px;
 }
-p-button{
-  margin: 10px;
+
+.file-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  gap: 5px;
+}
+
+.file-preview-item img {
+  width: 100px;
+  height: 60px;
+  object-fit: cover;
+}
+
+.file-preview-item span {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.file-preview-item .remove-btn {
+  color: #dc3545;
+  cursor: pointer;
+  border: none;
+  background: none;
 }
