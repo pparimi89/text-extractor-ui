@@ -99,3 +99,48 @@
   border: none;
   background: none;
 }
+
+.clear-btn {
+  padding: 0px 8px;
+  background-color: #ffffff;
+  color: red; /* White text */
+  border: red solid;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 10px 0 10px;
+  width: 70px;
+}
+
+.export-btn{
+  background-color: #007bff;
+  color: #fff;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+}
+
+ input {
+  width: 100%;
+  padding: 8px 10px 8px 30px;
+  border: 1px solid #ccc; 
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; 
+  transition: border-color 0.3s ease;
+}
+
+
+ input:focus {
+  border-color: #007bff; /* Highlight border on focus */
+  outline: none;
+}
+
+.sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.spacer {
+  flex: 1 1 auto;
+}

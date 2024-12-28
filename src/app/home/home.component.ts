@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
@@ -8,7 +8,11 @@ import { DropdownModule } from 'primeng/dropdown';
 import { Table, TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import e from 'express';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { FormsModule } from '@angular/forms';
+import jsPDF from 'jspdf';
+import { MatToolbarModule } from '@angular/material/toolbar';  // Import MatToolbarModule
 
 
 // For dynamic progressbar demo
@@ -21,14 +25,14 @@ export interface FilePreview {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, CommonModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule],
+  imports: [RouterModule, MatToolbarModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: [ConfirmationService,]
 
 })
 export class HomeComponent implements OnInit {
-  files: FilePreview[] = []; 
+  files: FilePreview[] = [];
   uploadProgress: number = 0;
   isUploading: boolean = false;
 
@@ -43,19 +47,30 @@ export class HomeComponent implements OnInit {
 
   tableData: any[] = [];
   selectedItem: string = "";
+  selectedRows: any[] = []; // This holds the selected rows
+
 
   loading: boolean = true;
+  searchValue: string = '';
+  @ViewChild('dt2') dt2!: Table; // Using the @ViewChild decorator to get the reference
+  userName: any;
 
   constructor(private router: Router, private dialogService: ConfirmationService) { }
 
   ngOnInit(): void {
     let userData = localStorage.getItem("users");
-    const storedData = localStorage.getItem('ocr');
-    if (storedData) {
-      this.tableData = JSON.parse(storedData);
+    if (userData) {
+      const parsedUserData = JSON.parse(userData);
+      if (Array.isArray(parsedUserData) && parsedUserData.length > 0) {
+        this.userName = parsedUserData[0].name;
+      }
+    } else {
+      this.router.navigate(['/signin']);
     }
-    if (!userData) {
-      this.router.navigate(['/singin']);
+
+    const storedOCRData = localStorage.getItem('ocr');
+    if (storedOCRData) {
+      this.tableData = JSON.parse(storedOCRData);
     }
     console.log("table", this.tableData);
 
@@ -121,13 +136,12 @@ export class HomeComponent implements OnInit {
         if (uploadedCount < totalFiles) {
           uploadedCount++;
           this.uploadProgress = Math.round((uploadedCount / totalFiles) * 100);
-          if (this.uploadProgress===100) {
-            this.confirm2();
-            this.clearFiles();
-          }
         } else {
           clearInterval(interval);
           this.isUploading = false;
+          console.log("uploaded completed");
+          this.confirm2();
+          this.clearFiles();
         }
       }, 500);
     }
@@ -153,18 +167,71 @@ export class HomeComponent implements OnInit {
       accept: () => {
         const payload = {
           id: Math.floor(Math.random() * 1000) + 1, // generating Random ID
-          category: this.selectedItem, 
+          name: this.userName,
+          category: this.selectedItem,
           fileAmount: Math.floor(Math.random() * 500) + 100, //generating Random fileAmount
         };
         console.log("payload", payload);
         this.tableData.push(payload);
         localStorage.setItem("ocr", JSON.stringify(this.tableData));
-        this.selectedItem==null;
+        this.selectedItem == null;
       },
       reject: () => {
 
       }
     });
+  }
+
+  filterGlobal(event: Event, filterType: string): void {
+    const inputElement = event.target as HTMLInputElement;
+    this.searchValue = inputElement?.value || '';
+    this.dt2.filterGlobal(this.searchValue, filterType);
+  }
+
+  clear(table: Table) {
+    table.clear();
+    this.searchValue = ''
+  }
+
+  exportTOPdf() {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const marginX = 10;
+    let currentY = 20;
+
+    // Title
+    doc.setFontSize(16);
+    doc.text('Table Data Export', pageWidth / 2, 10, { align: 'center' });
+
+    doc.setFontSize(12);
+    doc.text('Code', marginX, currentY);
+    doc.text('User Name', marginX + 30, currentY);
+    doc.text('Category', marginX + 80, currentY);
+    doc.text('Amount', marginX + 130, currentY);
+    currentY += 10;
+
+    doc.setFontSize(10);
+    const rowsToExport = this.selectedRows.length > 0 ? this.selectedRows : this.tableData;
+
+    rowsToExport.forEach((data) => {
+      doc.text(data.id.toString(), marginX, currentY);
+      data.name ? doc.text(data.name, marginX + 30, currentY) : '';
+      doc.text(data.category, marginX + 80, currentY);
+      doc.text(data.fileAmount.toString(), marginX + 130, currentY);
+      currentY += 10;
+
+      // Add new page if necessary
+      if (currentY > doc.internal.pageSize.getHeight() - 10) {
+        doc.addPage();
+        currentY = 20;
+      }
+    });
+    doc.save('table-data.pdf');
+
+  }
+
+  public logout(): void {
+    this.router.navigate(['/signin']);
   }
 
 }
