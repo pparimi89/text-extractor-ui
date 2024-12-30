@@ -13,6 +13,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import { MatToolbarModule } from '@angular/material/toolbar';  // Import MatToolbarModule
+import { HttpClient, HttpHeaders } from '@angular/common/http'; // Import HttpClient
+import { error } from 'console';
 
 
 // For dynamic progressbar demo
@@ -55,7 +57,7 @@ export class HomeComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table; // Using the @ViewChild decorator to get the reference
   userName: any;
 
-  constructor(private router: Router, private dialogService: ConfirmationService) { }
+  constructor(private router: Router, private dialogService: ConfirmationService,private http:HttpClient) { }
 
   ngOnInit(): void {
     let userData = localStorage.getItem("users");
@@ -81,7 +83,7 @@ export class HomeComponent implements OnInit {
     this.selectedItem = event.value;
   }
 
-  chooseFiles(): void {
+  public chooseFiles(): void {
     if (!this.selectedItem) {
       alert("Please select Category");
       return;
@@ -98,11 +100,11 @@ export class HomeComponent implements OnInit {
     fileInput.click();
   }
 
-  handleDragOver(event: DragEvent): void {
+  public handleDragOver(event: DragEvent): void {
     event.preventDefault();
   }
 
-  handleDrop(event: DragEvent): void {
+  public handleDrop(event: DragEvent): void {
     event.preventDefault();
     if (event.dataTransfer) {
       this.handleFiles(event.dataTransfer.files);
@@ -141,6 +143,7 @@ export class HomeComponent implements OnInit {
           this.isUploading = false;
           console.log("uploaded completed");
           this.confirm2();
+          this.uploadPayload();
           this.clearFiles();
         }
       }, 500);
@@ -152,7 +155,7 @@ export class HomeComponent implements OnInit {
     this.files = this.files.filter((f) => f !== file);
   }
 
-  clearFiles(): void {
+  public clearFiles(): void {
     this.files = [];
     this.uploadProgress = 0;
   }
@@ -180,6 +183,39 @@ export class HomeComponent implements OnInit {
 
       }
     });
+  }
+
+  private uploadPayload(): void {
+    const formData = new FormData();
+    const headers = new HttpHeaders({
+      'Content-Type': 'multipart/form-data'
+    });
+
+    // Append files to formData
+    this.files.forEach((file) => {
+      formData.append('files', file.file);
+    });
+
+    // Add selected category and other data
+    formData.append('category', this.selectedItem);
+    formData.append('userName', this.userName);
+    console.log("formdata",formData);
+    
+    // Make POST request
+    this.http
+      .post<any>('https://dummy-api.com/upload', formData,{headers:headers}).subscribe({
+        next : res => {
+          if (res) {
+            console.log("response",res);
+            
+          } else {
+            throw new Error(res.message || 'Unknown error occurred.');
+          }
+        },error : err => {
+          throw new Error(err.message || 'Unknown error occurred.');
+        }
+      }
+    )
   }
 
   filterGlobal(event: Event, filterType: string): void {

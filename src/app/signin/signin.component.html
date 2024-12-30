@@ -37,7 +37,7 @@
             <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('password')?.errors?.['required']">Password
               is required field*</small>
             <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('password')?.errors?.['minlength']">Password
-              must be at least 6 characters*</small>
+              must be at least 4 characters*</small>
           </div>
         </div>
 
@@ -106,7 +106,7 @@
             <div
               *ngIf="signupForm.get('password')?.invalid && (signupForm.get('password')?.dirty || signupForm.get('password')?.touched)">
               <small style="color: rgb(225, 17, 17);font-size: 11px;" *ngIf="signupForm.get('password')?.errors?.['required']">Password is required field*</small>
-              <small style="color: rgb(225, 17, 17);font-size:11px;" *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters*</small>
+              <small style="color: rgb(225, 17, 17);font-size:11px;" *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 4 characters*</small>
             </div>
           </div>
 

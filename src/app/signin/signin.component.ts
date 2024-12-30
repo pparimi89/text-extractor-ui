@@ -60,7 +60,7 @@ export class SigninComponent implements OnInit {
         Validators.maxLength(10),
         Validators.pattern('^[6-9][0-9]{9}$')
       ]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(4)]]
     });
 
     this.signupForm = this.formBuilder.group({
@@ -71,7 +71,7 @@ export class SigninComponent implements OnInit {
         Validators.maxLength(10),
         Validators.pattern('^[6-9][0-9]{9}$')
       ]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(4)]],
     });  
   }
 
