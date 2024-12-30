@@ -198,12 +198,10 @@ export class HomeComponent implements OnInit {
 
     // Add selected category and other data
     formData.append('category', this.selectedItem);
-    formData.append('userName', this.userName);
-    console.log("formdata",formData);
-    
+    formData.append('userName', this.userName);    
     // Make POST request
     this.http
-      .post<any>('https://dummy-api.com/upload', formData,{headers:headers}).subscribe({
+      .post<any>('https://dummy-api.com/upload', formData,).subscribe({
         next : res => {
           if (res) {
             console.log("response",res);
