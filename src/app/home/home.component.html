@@ -86,7 +86,9 @@
     </div>
   </div>
 </div>
-
+<div *ngIf="fileAmount" >
+  <p>Total Bill : <span> {{fileAmount}} </span></p>
+</div>
 <p-confirmDialog [position]="'top'" />
 
 <div class="mt-3 mb-4">

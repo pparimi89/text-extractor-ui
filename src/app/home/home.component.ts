@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import { MatToolbarModule } from '@angular/material/toolbar';  // Import MatToolbarModule
 import { HttpClient, HttpHeaders } from '@angular/common/http'; // Import HttpClient
-import { error } from 'console';
+import { constants } from '../app.config';
 
 
 // For dynamic progressbar demo
@@ -50,6 +50,7 @@ export class HomeComponent implements OnInit {
   tableData: any[] = [];
   selectedItem: string = "";
   selectedRows: any[] = []; // This holds the selected rows
+  fileAmount?: string;
 
 
   loading: boolean = true;
@@ -57,7 +58,7 @@ export class HomeComponent implements OnInit {
   @ViewChild('dt2') dt2!: Table; // Using the @ViewChild decorator to get the reference
   userName: any;
 
-  constructor(private router: Router, private dialogService: ConfirmationService,private http:HttpClient) { }
+  constructor(private router: Router, private dialogService: ConfirmationService, private http: HttpClient) { }
 
   ngOnInit(): void {
     let userData = localStorage.getItem("users");
@@ -91,7 +92,7 @@ export class HomeComponent implements OnInit {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*,application/pdf';
-    fileInput.multiple = true;
+    fileInput.multiple = false;
 
     fileInput.addEventListener('change', (event: any) => {
       this.handleFiles(event.target.files);
@@ -193,27 +194,29 @@ export class HomeComponent implements OnInit {
 
     // Append files to formData
     this.files.forEach((file) => {
-      formData.append('files', file.file);
+      formData.append('file', file.file);
     });
+    console.log("payload", formData);
+    const url = 
 
     // Add selected category and other data
-    formData.append('category', this.selectedItem);
-    formData.append('userName', this.userName);    
+    // formData.append('category', this.selectedItem);
+    // formData.append('userName', this.userName);    
     // Make POST request
     this.http
-      .post<any>('https://dummy-api.com/upload', formData,).subscribe({
-        next : res => {
+      .post<any>(constants.baseUrl, formData, { headers: headers }).subscribe({
+        next: res => {
           if (res) {
-            console.log("response",res);
-            
+            console.log("response", res);
+            this.fileAmount = res;
           } else {
             throw new Error(res.message || 'Unknown error occurred.');
           }
-        },error : err => {
+        }, error: err => {
           throw new Error(err.message || 'Unknown error occurred.');
         }
       }
-    )
+      )
   }
 
   filterGlobal(event: Event, filterType: string): void {
