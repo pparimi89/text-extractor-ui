@@ -188,27 +188,22 @@ export class HomeComponent implements OnInit {
 
   private uploadPayload(): void {
     const formData = new FormData();
-    const headers = new HttpHeaders({
-      'Content-Type': 'multipart/form-data'
-    });
-
     // Append files to formData
     this.files.forEach((file) => {
       formData.append('file', file.file);
     });
     console.log("payload", formData);
-    const url = 
 
     // Add selected category and other data
     // formData.append('category', this.selectedItem);
     // formData.append('userName', this.userName);    
     // Make POST request
     this.http
-      .post<any>(constants.baseUrl, formData, { headers: headers }).subscribe({
+      .post<any>(constants.baseUrl, formData).subscribe({
         next: res => {
           if (res) {
             console.log("response", res);
-            this.fileAmount = res;
+            this.fileAmount = res.totalAmount;
           } else {
             throw new Error(res.message || 'Unknown error occurred.');
           }
