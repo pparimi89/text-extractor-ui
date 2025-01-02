@@ -1,0 +1,19 @@
+<div *ngIf="data">
+  <mat-dialog-content>
+    <div class="dialog-header">
+      <h2 class="dialog-title">Confirmation</h2>
+      <i class="pi pi-times" style="font-size: 1rem"></i>
+    </div>
+    <mat-divider class="mt-2 mb-2"></mat-divider>
+    <p class="dialog-message">
+      Extracted Amount : <span class="amount">{{ data.amount }} Rs</span> 
+    </p>
+    <p class="dialog-message">Are you sure want to add this record ?</p>
+  </mat-dialog-content>
+  <mat-divider></mat-divider>
+
+  <mat-dialog-actions align="end">
+    <button class="cancel-button" (click)="cancelClick()">Cancel</button>
+    <button (click)="onConfirmClick()" class="confirm-button">Proceed</button>
+  </mat-dialog-actions>
+</div>

@@ -6,24 +6,26 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
+import { HttpClient } from '@angular/common/http'; // Import HttpClient
+import { constants } from '../app.config';
 
 
 interface loginModel {
-  email?: string,
+  phoneOrEmail?: string,
   password?: string
 }
 
-interface signupModel{
-  name?:string,
+interface signupModel {
+  name?: string,
   email?: string,
-  phone?:string,
+  phone?: string,
   password?: string
 }
 
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,IconFieldModule,InputIconModule,TooltipModule,InputTextModule],
+  imports: [CommonModule, ReactiveFormsModule, IconFieldModule, InputIconModule, TooltipModule, InputTextModule],
   templateUrl: './signin.component.html',
   styleUrl: './signin.component.scss'
 })
@@ -40,11 +42,12 @@ export class SigninComponent implements OnInit {
   showButton: boolean = true;
   showPassword: boolean = false;
   loginModel: loginModel = {}
-  signupModel:signupModel={};
+  signupModel: signupModel = {};
 
   constructor(
+    private http: HttpClient,
     private formBuilder: FormBuilder,
-    private router: Router) {}
+    private router: Router) { }
 
   ngOnInit(): void {
     this.buildForm();
@@ -54,7 +57,7 @@ export class SigninComponent implements OnInit {
 
   private buildForm(): void {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
+      phoneOrEmail: ['', [Validators.required, Validators.email]],
       phone: ['', [
         Validators.required,
         Validators.maxLength(10),
@@ -72,7 +75,7 @@ export class SigninComponent implements OnInit {
         Validators.pattern('^[6-9][0-9]{9}$')
       ]],
       password: ['', [Validators.required, Validators.minLength(4)]],
-    });  
+    });
   }
 
   public toggleForm(): void {
@@ -88,54 +91,49 @@ export class SigninComponent implements OnInit {
   }
 
   public userLogin(): void {
-    this.loginModel.email = this.loginForm.get('email')?.value;
+    this.loginModel.phoneOrEmail = this.loginForm.get('phoneOrEmail')?.value;
     this.loginModel.password = this.loginForm.get('password')?.value;
-  
-    // Fetch stored users from localStorage
-    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-  
-    // Check if user exists with matching email and password
-    const user = storedUsers.find((u: any) => u.email === this.loginModel.email && u.password === this.loginModel.password);
 
-    console.log('user',user);
-    
-    if (user) {
-      // Successful login
-      alert('Login successful!');
-      this.router.navigate(['/home']);
-    } else {
-      alert('Invalid email or password!');
-    }
+    this.http.post<any>(`${constants.baseUrl}fetch-user`, this.loginModel).subscribe({
+      next: response => {
+        if (response) {
+          localStorage.setItem("users", JSON.stringify(response));
+          alert('Login successful!');
+          this.router.navigate(['/home']);
+        }
+      }, error: err => {
+        console.log("err", err.ok);
+        if (err.ok == false) {
+          alert('User login failed !');
+        }
+      }
+    })
   }
-  
+
   public userSignup(): void {
-  
-    // Get the form data
-    const { email, name, mobile, password } = this.signupForm.value;
-  
-    // Fetch stored users from localStorage
-    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-  
-    // Check if the email or mobile already exists
-    const existingUser = storedUsers.find(
-      (u: any) => u.email === email || u.mobile === mobile
-    );
-  
-    if (existingUser) {
-      alert('User with this email or mobile number already exists!');
-      return;
-    }
-  
-    // Add the new user to the stored users
-    const newUser = { email, name, mobile, password };
-    storedUsers.push(newUser);
-  
-    // Save back to localStorage
-    localStorage.setItem('users', JSON.stringify(storedUsers));
-  
-    alert('Signup successful! Please login to continue.');
-    this.toggleForm(); // Switch to login form
+
+    this.signupModel.name = this.signupForm.get('name')?.value;
+    this.signupModel.email = this.signupForm.get('email')?.value;
+    this.signupModel.phone = this.signupForm.get('mobile')?.value;
+    this.signupModel.password = this.signupForm.get('password')?.value;
+
+    this.http.post<any>(`${constants.baseUrl}create-user`, this.signupModel).subscribe({
+      next: response => {
+        if (response && response.code === "000") {
+          alert('Signup successful! Please login to continue.');
+          this.toggleForm();
+        } else {
+          alert("Failed to create User");
+        }
+
+      }, error: err => {
+        if (err.ok == false) {
+          alert("Something went wrong !")
+        }
+      }
+    })
+
   }
-  
+
 
 }

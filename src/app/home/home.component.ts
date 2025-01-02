@@ -15,6 +15,8 @@ import jsPDF from 'jspdf';
 import { MatToolbarModule } from '@angular/material/toolbar';  // Import MatToolbarModule
 import { HttpClient, HttpHeaders } from '@angular/common/http'; // Import HttpClient
 import { constants } from '../app.config';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmationComponent } from '../confirmation/confirmation.component';
 
 
 // For dynamic progressbar demo
@@ -27,7 +29,7 @@ export interface FilePreview {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, MatToolbarModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule],
+  imports: [RouterModule, MatToolbarModule, MatDialogModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: [ConfirmationService,]
@@ -41,11 +43,11 @@ export class HomeComponent implements OnInit {
   totalSize: number = 0;
   totalSizePercent: number = 0;
 
-  categoryList: any[] = [
-    { name: 'Petrol Bill', code: 'petrolBill' },
-    { name: 'Grocery Bill', code: 'GroceryBill' },
-    { name: 'Ration Bill', code: 'rationBill' },
-  ];
+  // categoryList: any[] = [
+  //   { name: 'Petrol Bill', code: 'petrolBill' },
+  //   { name: 'Grocery Bill', code: 'GroceryBill' },
+  //   { name: 'Ration Bill', code: 'rationBill' },
+  // ];
 
   tableData: any[] = [];
   selectedItem: string = "";
@@ -57,26 +59,54 @@ export class HomeComponent implements OnInit {
   searchValue: string = '';
   @ViewChild('dt2') dt2!: Table; // Using the @ViewChild decorator to get the reference
   userName: any;
+  userId?: number;
+  categoryData: any[] = [];
 
-  constructor(private router: Router, private dialogService: ConfirmationService, private http: HttpClient) { }
+  constructor(private dialog: MatDialog, private router: Router, private dialogService: ConfirmationService, private http: HttpClient) { }
 
   ngOnInit(): void {
     let userData = localStorage.getItem("users");
     if (userData) {
       const parsedUserData = JSON.parse(userData);
-      if (Array.isArray(parsedUserData) && parsedUserData.length > 0) {
-        this.userName = parsedUserData[0].name;
-      }
+      this.userName = parsedUserData.name;
+      this.userId = parsedUserData.id;
+
     } else {
       this.router.navigate(['/signin']);
     }
 
-    const storedOCRData = localStorage.getItem('ocr');
-    if (storedOCRData) {
-      this.tableData = JSON.parse(storedOCRData);
-    }
-    console.log("table", this.tableData);
+    this.getCategories();
+    this.getUserBillData(this.userId);
+  }
 
+  private getUserBillData(userId:any):void{
+    const paylaod={
+      userId:userId
+    };
+    this.http.post<any>(`${constants.baseUrl}user-bill-info`,paylaod).subscribe({
+      next : res => {
+        if (res && res.code==="000") {
+          this.tableData = res.data;
+          console.log(this.tableData);
+          
+        }
+      },error : err=>{
+        console.log(err);
+        
+      }
+    })
+  }
+
+  private getCategories(): void {
+    this.http.get<any>(`${constants.baseUrl}categories`).subscribe({
+      next: res => {
+        if (res && res.code === "000") {
+          this.categoryData = res.data;
+        }
+      }, error: err => {
+        console.log(err);
+      }
+    })
   }
 
   onCategoryChange(event: any) {
@@ -143,7 +173,6 @@ export class HomeComponent implements OnInit {
           clearInterval(interval);
           this.isUploading = false;
           console.log("uploaded completed");
-          this.confirm2();
           this.uploadPayload();
           this.clearFiles();
         }
@@ -161,30 +190,7 @@ export class HomeComponent implements OnInit {
     this.uploadProgress = 0;
   }
 
-  private confirm2() {
-    this.dialogService.confirm({
-      message: 'Do you want to Add this record ?',
-      header: 'Save Confirmation',
-      acceptButtonStyleClass: "p-button-sm ",
-      rejectButtonStyleClass: "p-button-text mr-2",
 
-      accept: () => {
-        const payload = {
-          id: Math.floor(Math.random() * 1000) + 1, // generating Random ID
-          name: this.userName,
-          category: this.selectedItem,
-          fileAmount: Math.floor(Math.random() * 500) + 100, //generating Random fileAmount
-        };
-        console.log("payload", payload);
-        this.tableData.push(payload);
-        localStorage.setItem("ocr", JSON.stringify(this.tableData));
-        this.selectedItem == null;
-      },
-      reject: () => {
-
-      }
-    });
-  }
 
   private uploadPayload(): void {
     const formData = new FormData();
@@ -192,18 +198,15 @@ export class HomeComponent implements OnInit {
     this.files.forEach((file) => {
       formData.append('file', file.file);
     });
-    console.log("payload", formData);
-
-    // Add selected category and other data
-    // formData.append('category', this.selectedItem);
-    // formData.append('userName', this.userName);    
+    console.log("payload", formData);   
     // Make POST request
     this.http
-      .post<any>(constants.baseUrl, formData).subscribe({
+      .post<any>(`${constants.baseUrl}dummy-data-extract`, formData).subscribe({
         next: res => {
           if (res) {
             console.log("response", res);
             this.fileAmount = res.totalAmount;
+            this.openConfirmationDialog();
           } else {
             throw new Error(res.message || 'Unknown error occurred.');
           }
@@ -212,6 +215,24 @@ export class HomeComponent implements OnInit {
         }
       }
       )
+  }
+
+  private openConfirmationDialog():void {
+    const payload = {
+      userId: this.userId,
+      categoryId: this.selectedItem,
+      amount: this.fileAmount
+    };
+    console.log("payload", payload);
+
+    const dialogRef =  this.dialog.open(ConfirmationComponent,{
+      data: payload,
+      width:'400px',
+      disableClose:true,
+      position: { top: '0px' }, 
+
+    })
+    
   }
 
   filterGlobal(event: Event, filterType: string): void {

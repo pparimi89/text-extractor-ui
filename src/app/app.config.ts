@@ -13,5 +13,5 @@ export const appConfig: ApplicationConfig = {
 
 export class constants {
   //public static baseUrl = "https://text-extractor-446311.de.r.appspot.com/api/extract-data";
-  public static baseUrl = "http://localhost:8080/api/extract-data";
+  public static baseUrl = "http://localhost:8080/api/";
 }

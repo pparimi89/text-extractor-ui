@@ -1,0 +1,55 @@
+/* Styles for MatDialog */
+::ng-deep .mat-dialog-container {
+    background-color: white; /* White background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    color: #333; /* Text color */
+    padding: 20px; /* Add spacing */
+  }
+  
+  /* Dialog header */
+  .dialog-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  
+  /* Dialog title */
+  .dialog-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #181717;
+  }
+  
+  /* Dialog message */
+  .dialog-message {
+    font-size: 18px;
+    color: #000000;
+  }
+  .amount{
+    color: red;
+    font-size: 18px;
+  }
+  
+  /* Buttons */
+  .cancel-button {
+    color: #ffffff; /* Cancel button text */
+    background-color: hsl(0, 83%, 58%); /* Outline color */
+    margin-right: 8px;
+    border: none;
+    border-radius: 5px;
+    padding: 8px;
+  }
+  
+  .confirm-button {
+    background-color: #1976d2; /* Primary color */
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 5px;
+  }
+  

@@ -7,9 +7,9 @@
 <div class="main">
   <div class="drop-down">
     <p-dropdown
-      [options]="categoryList"
+      [options]="categoryData"
       optionLabel="name"
-      optionValue="code"
+      optionValue="id"
       [showClear]="true"
       [filter]="true"
       filterBy="name"
@@ -86,10 +86,6 @@
     </div>
   </div>
 </div>
-<div *ngIf="fileAmount" >
-  <p>Total Bill : <span> {{fileAmount}} </span></p>
-</div>
-<p-confirmDialog [position]="'top'" />
 
 <div class="mt-3 mb-4">
   <div class="card w-75 m-auto">
@@ -134,7 +130,7 @@
           </th>
           <th>
             <div class="d-flex flex-row align-items-center">
-              Id
+              User Bill Id
               <p-columnFilter type="text" field="id" display="menu" />
             </div>
           </th>
@@ -159,10 +155,10 @@
           <td>
             <p-tableCheckbox [value]="product"></p-tableCheckbox>
           </td>
-          <td>{{ product.id }}</td>
-          <td>{{ product.name }}</td>
-          <td>{{ product.category }}</td>
-          <td>{{ product.fileAmount }}</td>
+          <td>{{ product.userBillId }}</td>
+          <td>{{ userName }}</td>
+          <td>{{ product.categoryName }}</td>
+          <td>{{ product.amount }}</td>
         </tr>
       </ng-template>
     </p-table>

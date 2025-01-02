@@ -11,16 +11,16 @@
 
       <form [formGroup]="loginForm">
         <div class="field-container">
-          <label for="login-email" class="email">Enter Email ID<span class="text-danger">*</span></label>
+          <label for="login-email" class="email">Enter Email or Phone<span class="text-danger">*</span></label>
           <input type="email" pTooltip="Enter your Email" tooltipPosition="bottom" id="login-email"
-            class="email-input" placeholder="Enter Email address" formControlName="email" required />
+            class="email-input" placeholder="Enter Email address" formControlName="phoneOrEmail" required />
 
           <div
-            *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)">
-            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('email')?.errors?.['required']">Email is
+            *ngIf="loginForm.get('phoneOrEmail')?.invalid && (loginForm.get('phoneOrEmail')?.dirty || loginForm.get('phoneOrEmail')?.touched)">
+            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('phoneOrEmail')?.errors?.['required']">Email ID or Phone is
               required field*</small>
-            <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('email')?.errors?.['email']">Invalid Email
-              Address format*</small>
+            <!-- <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('phoneOrEmail')?.errors?.['email']">Invalid Email
+              Address format*</small> -->
           </div>
         </div>
 
