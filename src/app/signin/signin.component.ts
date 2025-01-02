@@ -52,7 +52,10 @@ export class SigninComponent implements OnInit {
   ngOnInit(): void {
     this.buildForm();
     this.logoImage = './assets/bg-logo.svg';
-
+    let userData = localStorage.getItem("users");
+    if (userData) {
+      this.router.navigate(['/home']);
+    }
   }
 
   private buildForm(): void {
