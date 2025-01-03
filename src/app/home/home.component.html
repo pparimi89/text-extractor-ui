@@ -1,10 +1,26 @@
 <mat-toolbar color="primary" class="sticky-toolbar">
-  <span>Welcome {{userName}}</span>
+  <span>Welcome {{ userName }}</span>
   <span class="spacer"></span>
-  <button class="btn btn-warning" (click)="logout()" >Logout</button>
+  <button class="btn btn-warning" (click)="logout()">Logout</button>
 </mat-toolbar>
 
 <div class="main">
+
+  <div class="mt-3">
+    <input
+      type="checkbox"
+      id="toggle-button-checkbox"
+      [checked]="isChecked"
+      (change)="onToggle($event)"
+      class="toggle-checkbox"
+    />
+    <label class="toggle-button-switch" for="toggle-button-checkbox"></label>
+    <div class="toggle-button-text">
+      <div class="toggle-button-text-on" *ngIf="isChecked">Live Mode</div>
+      <div class="toggle-button-text-off" *ngIf="!isChecked">Test Mode</div>
+    </div>
+  </div>
+
   <div class="drop-down">
     <p-dropdown
       [options]="categoryData"
@@ -96,10 +112,10 @@
       [selection]="selectedRows"
       [(selection)]="selectedRows"
       #dt2
-      dataKey="id"
+      dataKey="userBillId"
       [scrollable]="true"
       [tableStyle]="{ 'min-width': '50rem' }"
-      [globalFilterFields]="['id', 'category', 'fileAmount']"
+      [globalFilterFields]="['userBillId', 'categoryName', 'amount']"
     >
       <ng-template pTemplate="caption">
         <div class="d-flex flex-row justify-content-between">
@@ -118,7 +134,9 @@
           </div>
 
           <div>
-            <button class="export-btn" (click)="exportTOPdf()">Export to PDF</button>
+            <button class="export-btn" (click)="exportTOPdf()">
+              Export to PDF
+            </button>
           </div>
         </div>
       </ng-template>
@@ -131,20 +149,20 @@
           <th>
             <div class="d-flex flex-row align-items-center">
               User Bill Id
-              <p-columnFilter type="text" field="id" display="menu" />
+              <p-columnFilter type="text" field="userBillId" display="menu" />
             </div>
           </th>
           <th>User Name</th>
           <th>
             <div class="d-flex flex-row align-items-center">
               Category
-              <p-columnFilter type="text" field="category" display="menu" />
+              <p-columnFilter type="text" field="categoryName" display="menu" />
             </div>
           </th>
           <th>
             <div class="d-flex flex-row align-items-center">
               Amount
-              <p-columnFilter type="text" field="fileAmount" display="menu" />
+              <p-columnFilter type="text" field="amount" display="menu" />
             </div>
           </th>
         </tr>

@@ -144,3 +144,44 @@
 .spacer {
   flex: 1 1 auto;
 }
+
+// toggle button styling
+.toggle-checkbox {
+  display: none;
+}
+
+.toggle-button-switch {
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+}
+
+.toggle-button-switch:before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+
+.toggle-checkbox:checked + .toggle-button-switch:before {
+  transform: translateX(30px);
+}
+
+
+.toggle-button-text-on {
+  color: green;
+}
+
+.toggle-button-text-off {
+  color: red;
+}

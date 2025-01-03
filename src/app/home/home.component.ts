@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
@@ -7,7 +7,6 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { DropdownModule } from 'primeng/dropdown';
 import { Table, TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
@@ -32,22 +31,19 @@ export interface FilePreview {
   imports: [RouterModule, MatToolbarModule, MatDialogModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  providers: [ConfirmationService,]
+  providers: []
 
 })
 export class HomeComponent implements OnInit {
+  @Input() isChecked: boolean = false; // Input to set the initial state
+  @Output() changed = new EventEmitter<boolean>(); // Emit the toggle state
+
   files: FilePreview[] = [];
   uploadProgress: number = 0;
   isUploading: boolean = false;
 
   totalSize: number = 0;
   totalSizePercent: number = 0;
-
-  // categoryList: any[] = [
-  //   { name: 'Petrol Bill', code: 'petrolBill' },
-  //   { name: 'Grocery Bill', code: 'GroceryBill' },
-  //   { name: 'Ration Bill', code: 'rationBill' },
-  // ];
 
   tableData: any[] = [];
   selectedItem: string = "";
@@ -62,7 +58,7 @@ export class HomeComponent implements OnInit {
   userId?: number;
   categoryData: any[] = [];
 
-  constructor(private dialog: MatDialog, private router: Router, private dialogService: ConfirmationService, private http: HttpClient) { }
+  constructor(private dialog: MatDialog, private router: Router, private http: HttpClient) { }
 
   ngOnInit(): void {
     let userData = localStorage.getItem("users");
@@ -77,6 +73,12 @@ export class HomeComponent implements OnInit {
 
     this.getCategories();
     this.getUserBillData(this.userId);
+  }
+
+  onToggle(event: Event): void {
+    const target = event.target as HTMLInputElement; // Creating EventTarget as HTMLInputElement
+    this.isChecked = target.checked; // Safely access the 'checked' property
+    this.changed.emit(this.isChecked); // Emitting changes    
   }
 
   private getUserBillData(userId:any):void{
@@ -202,10 +204,17 @@ export class HomeComponent implements OnInit {
     this.files.forEach((file) => {
       formData.append('file', file.file);
     });
-    console.log("payload", formData);   
+    console.log("payload", formData);
+    let apiUrl; 
+    if (this.isChecked) {
+      apiUrl = "extract-data";
+    }else{
+      apiUrl = "dummy-data-extract";
+    }
+    
     // Make POST request
     this.http
-      .post<any>(`${constants.baseUrl}dummy-data-extract`, formData).subscribe({
+      .post<any>(`${constants.baseUrl}${apiUrl}`, formData).subscribe({
         next: res => {
           if (res) {
             console.log("response", res);
@@ -245,7 +254,7 @@ export class HomeComponent implements OnInit {
 
   filterGlobal(event: Event, filterType: string): void {
     const inputElement = event.target as HTMLInputElement;
-    this.searchValue = inputElement?.value || '';
+    this.searchValue = inputElement?.value;
     this.dt2.filterGlobal(this.searchValue, filterType);
   }
 
@@ -258,38 +267,77 @@ export class HomeComponent implements OnInit {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const marginX = 10;
-    let currentY = 20;
-
+    const tableStartY = 20; // adjust height b/w table and heading
+    const rowHeight = 10; 
+    let currentY = tableStartY;
+  
     // Title
     doc.setFontSize(16);
-    doc.text('Table Data Export', pageWidth / 2, 10, { align: 'center' });
-
+    doc.setFont("helvetica", "bold");
+    doc.text('Expenses', pageWidth / 2, 15, { align: 'center' });
+  
+    // Table Headers
     doc.setFontSize(12);
-    doc.text('Code', marginX, currentY);
-    doc.text('User Name', marginX + 30, currentY);
-    doc.text('Category', marginX + 80, currentY);
-    doc.text('Amount', marginX + 130, currentY);
-    currentY += 10;
-
+    doc.setFont("helvetica", "bold");
+    const headers = ['User Bill Id', 'User Name', 'Category Name', 'Amount'];
+    const columnWidths = [40, 50, 60, 40]; // Width for each column
+    let currentX = marginX;
+  
+    // Draw headers and borders
+    headers.forEach((header, index) => {
+      // Draw header text centered
+      doc.text(header, currentX + columnWidths[index] / 2, currentY + rowHeight / 2 + 3, {
+        align: 'center',
+      });
+  
+      // Draw header cell border
+      doc.rect(currentX, currentY, columnWidths[index], rowHeight);
+  
+      currentX += columnWidths[index];
+    });
+  
+    currentY += rowHeight; // Move to the next row for data
+  
+    // Table Data
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const rowsToExport = this.selectedRows.length > 0 ? this.selectedRows : this.tableData;
-
+  
     rowsToExport.forEach((data) => {
-      doc.text(data.id.toString(), marginX, currentY);
-      data.name ? doc.text(data.name, marginX + 30, currentY) : '';
-      doc.text(data.category, marginX + 80, currentY);
-      doc.text(data.fileAmount.toString(), marginX + 130, currentY);
-      currentY += 10;
-
+      currentX = marginX;
+  
+      const row = [
+        data.userBillId.toString(),
+        this.userName || '', // Use this.userName if available
+        data.categoryName,
+        data.amount.toString(),
+      ];
+  
+      // Draw data row with borders
+      row.forEach((cell, index) => {
+        // Draw cell text centered
+        doc.text(cell, currentX + columnWidths[index] / 2, currentY + rowHeight / 2 + 3, {
+          align: 'center',
+        });
+  
+        // Draw cell border
+        doc.rect(currentX, currentY, columnWidths[index], rowHeight);
+  
+        currentX += columnWidths[index];
+      });
+  
+      currentY += rowHeight; // Move to the next row
+  
       // Add new page if necessary
-      if (currentY > doc.internal.pageSize.getHeight() - 10) {
+      if (currentY > doc.internal.pageSize.getHeight() - 20) {
         doc.addPage();
-        currentY = 20;
+        currentY = tableStartY;
       }
     });
+  
     doc.save('table-data.pdf');
-
   }
+  
 
   public logout(): void {
     localStorage.removeItem("users");
