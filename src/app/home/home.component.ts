@@ -288,6 +288,7 @@ export class HomeComponent implements OnInit {
   }
 
   public logout(): void {
+    localStorage.removeItem("users");
     this.router.navigate(['/signin']);
   }
 
