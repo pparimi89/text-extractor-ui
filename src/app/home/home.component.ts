@@ -230,9 +230,13 @@ export class HomeComponent implements OnInit {
       width:'400px',
       disableClose:true,
       position: { top: '0px' }, 
-
     })
-    
+    dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        this.getUserBillData(this.userId);
+      }
+    }
+  );
   }
 
   filterGlobal(event: Event, filterType: string): void {

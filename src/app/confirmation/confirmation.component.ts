@@ -40,7 +40,7 @@ export class ConfirmationComponent implements OnInit {
   }
 
   cancelClick(): void {
-    this.dialogRef.close(true);
+    this.dialogRef.close(false);
   }
 
 }
