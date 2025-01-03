@@ -158,6 +158,10 @@ export class HomeComponent implements OnInit {
   }
 
   uploadFiles(): void {
+    if (!this.selectedItem) {
+      alert("Please select Category");
+      return;
+    }
     if (this.files.length > 0) {
       this.isUploading = true;
       this.uploadProgress = 0;
