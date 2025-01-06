@@ -1,14 +1,14 @@
-<div class="bg-container">
+<div class="bg-container">  
+  <div class="title">
+    <img src="https://thirdeyeit.co.za/wp-content/uploads/thirdeyeit_consulting_services-300x67.png">  
+  </div>
   <div class="total-container">
-
     <div class="image-container">
       <img [src]="logoImage" alt="login-logo" class="image">
     </div>
 
     <!-- Login Form -->
     <div class="heading-container" *ngIf="isLoginForm">
-      <h3 class="welcome-text">Welcome Back..!</h3>
-
       <form [formGroup]="loginForm">
         <div class="field-container">
           <label for="login-email" class="email">Enter Email or Phone<span class="text-danger">*</span></label>

@@ -3,14 +3,25 @@ body {
     font-family: Arial, sans-serif;
     background-color: #4c86c0;
   }
-  
+  .title{
+    padding-bottom: 20px;
+    color: ghostwhite;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    font-size: 1.5rem;
+    font-family: "Work Sans", sans-serif;
+    font-weight: 700;
+  }
+
   .bg-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(to right, #718598, #5f9ed2);
-    padding: 20px; // For better mobile spacing
+    background: linear-gradient(to right, #747d85, #b3cfe7);
+    padding: 20px; 
+    flex-direction: column;// For better mobile spacing
   }
   
   .total-container {
@@ -23,6 +34,7 @@ body {
     width: 100%;
     align-items: stretch; 
     overflow: hidden;
+    padding: 50px 10px;
   }
   
   .image-container {
