@@ -1,26 +1,27 @@
 <mat-toolbar color="primary" class="sticky-toolbar">
-  <img style="width: 20%;" src="https://thirdeyeit.co.za/wp-content/uploads/thirdeyeit_consulting_services-300x67.png">  
+  <img style="width: 20%;" src="https://thirdeyeit.co.za/wp-content/uploads/thirdeyeit_consulting_services-300x67.png">    
   <span class="spacer"></span>
+  <span>
+    <div class="toggle">
+      <input
+        type="checkbox"
+        id="toggle-button-checkbox"
+        [checked]="isChecked"
+        (change)="onToggle($event)"
+        class="toggle-checkbox"
+      />
+      <label class="toggle-button-switch" for="toggle-button-checkbox"></label>
+      <div class="toggle-button-text">
+        <div class="toggle-button-text-on" *ngIf="isChecked"><strong>Live Mode</strong></div>
+        <div class="toggle-button-text-off" *ngIf="!isChecked"><strong>Test Mode</strong></div>
+      </div>
+    </div>
+  </span>
   <span class="usr-name">Welcome {{ userName }}</span>
   <button class="btn btn-warning" (click)="logout()">Logout</button>
 </mat-toolbar>
 
 <div class="main">
-
-  <div class="mt-3">
-    <input
-      type="checkbox"
-      id="toggle-button-checkbox"
-      [checked]="isChecked"
-      (change)="onToggle($event)"
-      class="toggle-checkbox"
-    />
-    <label class="toggle-button-switch" for="toggle-button-checkbox"></label>
-    <div class="toggle-button-text">
-      <div class="toggle-button-text-on" *ngIf="isChecked"><strong>Live Mode</strong></div>
-      <div class="toggle-button-text-off" *ngIf="!isChecked"><strong>Test Mode</strong></div>
-    </div>
-  </div>
 
   <div class="drop-down">
     <p-dropdown

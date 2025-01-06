@@ -140,7 +140,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(to right, #d7dfff, #f7faff);
+  background: linear-gradient(to right, #d7dfff, #e3e9f1);
 }
 .spacer {
   flex: 1 1 auto;
@@ -177,7 +177,11 @@
 .toggle-checkbox:checked + .toggle-button-switch:before {
   transform: translateX(30px);
 }
-
+.toggle-button-text{
+  font-size: 15px;
+  padding-left: 5px;
+  font-weight: 350;
+}
 
 .toggle-button-text-on {
   color: green;
@@ -189,4 +193,10 @@
 .usr-name{
   color: #007bff;
   padding-right: 12px;
+}
+
+.toggle{
+  display: flex;
+  align-items: center;
+  margin-right: 40px;
 }
