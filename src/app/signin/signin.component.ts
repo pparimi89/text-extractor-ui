@@ -51,7 +51,7 @@ export class SigninComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildForm();
-    this.logoImage = './assets/bg-logo.svg';
+    this.logoImage = 'https://thirdeyeit.co.za/wp-content/uploads/elementor/thumbs/integration2-qdyy4xxyqnhr265hvn4g8s0sz1pn78o3i2jldhi58g.jpg';
     let userData = localStorage.getItem("users");
     if (userData) {
       this.router.navigate(['/home']);
@@ -114,12 +114,16 @@ export class SigninComponent implements OnInit {
   }
 
   public userSignup(): void {
-
+    if (this.signupForm.invalid) {
+      alert("Please fill in all required fields.");
+      return;
+    }
     this.signupModel.name = this.signupForm.get('name')?.value;
     this.signupModel.email = this.signupForm.get('email')?.value;
     this.signupModel.phone = this.signupForm.get('mobile')?.value;
     this.signupModel.password = this.signupForm.get('password')?.value;
-
+    
+    
     this.http.post<any>(`${constants.baseUrl}create-user`, this.signupModel).subscribe({
       next: response => {
         if (response && response.code === "000") {

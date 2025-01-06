@@ -58,7 +58,7 @@
         <form [formGroup]="signupForm">
 
           <div class="field-container">
-            <label for="fname" class="email">Enter Full Name</label>
+            <label for="fname" class="email">Enter Full Name<span class="text-danger">*</span></label>
             <input type="text" id="fname" pTooltip="Enter Full Name" tooltipPosition="bottom"
               placeholder="Enter full Name" formControlName="name" required />
             <div
@@ -69,7 +69,7 @@
           </div>
 
           <div class="field-container">
-            <label for="signup-email" class="email">Enter Email ID</label>
+            <label for="signup-email" class="email">Enter Email ID<span class="text-danger">*</span></label>
             <input type="email" id="signup-email" pTooltip="Enter Email ID" tooltipPosition="bottom"
               placeholder="Enter Email address" formControlName="email" required />
             <div
@@ -82,7 +82,7 @@
           </div>
 
           <div class="field-container">
-            <label for="mobile" class="email">Enter Mobile No.</label>
+            <label for="mobile" class="email">Enter Mobile No.<span class="text-danger">*</span></label>
             <input type="number" maxlength="10" pTooltip="Enter Mobile No." tooltipPosition="bottom" id="mobile"
               placeholder="+91  Enter Mobile No." formControlName="mobile" required />
             <div
@@ -94,7 +94,7 @@
           </div>
 
           <div class="field-container">
-            <label class="email" for="signup-password">Enter Password</label>
+            <label class="email" for="signup-password">Enter Password<span class="text-danger">*</span></label>
             <div class="password-input-container">
               <input type="password" id="signup-password" pTooltip="Enter Password" tooltipPosition="bottom"
                 placeholder="Enter Password" formControlName="password"

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -28,7 +28,7 @@ export interface FilePreview {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, MatToolbarModule, MatDialogModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule],
+  imports: [RouterModule, MatToolbarModule, MatDialogModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule, NgClass],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: []
