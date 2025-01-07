@@ -265,83 +265,7 @@ export class HomeComponent implements OnInit {
     this.searchValue = ''
   }
 
-  // exportTOPdf() {
-  //   const doc = new jsPDF();
-  //   const pageWidth = doc.internal.pageSize.getWidth();
-  //   const marginX = 10;
-  //   const tableStartY = 20; // adjust height b/w table and heading
-  //   const currentX = 10; 
-  //   let currentY = tableStartY;
-
-  //   // Title
-  //   doc.setFontSize(16);
-  //   doc.setFont("helvetica", "bold");
-  //   doc.text('Expenses', pageWidth / 2, 15, { align: 'center' });
-
-  //   // Table Headers
-  //   doc.setFontSize(12);
-  //   doc.setFont("helvetica", "bold");
-  //   const headers = ['User Bill Id', 'User Name', 'Category Name', 'Amount'];
-  //   const columnWidths = [40, 50, 60, 40]; // Width for each column
-  //   let currentX = marginX;
-
-  //   // Draw headers and borders
-  //   headers.forEach((header, index) => {
-  //     // Draw header text centered
-  //     doc.text(header, currentX + columnWidths[index] / 2, currentY + rowHeight / 2 + 3, {
-  //       align: 'center',
-  //     });
-
-  //     // Draw header cell border
-  //     doc.rect(currentX, currentY, columnWidths[index], rowHeight);
-
-  //     currentX += columnWidths[index];
-  //   });
-
-  //   currentY += rowHeight; // Move to the next row for data
-
-  //   // Table Data
-  //   doc.setFont("helvetica", "normal");
-  //   doc.setFontSize(10);
-  //   const rowsToExport = this.selectedRows.length > 0 ? this.selectedRows : this.tableData;
-
-  //   rowsToExport.forEach((data) => {
-  //     currentX = marginX;
-
-  //     const row = [
-  //       data.userBillId.toString(),
-  //       this.userName || '', // Use this.userName if available
-  //       data.categoryName,
-  //       data.amount.toString(),
-  //     ];
-
-  //     // Draw data row with borders
-  //     row.forEach((cell, index) => {
-  //       // Draw cell text centered
-  //       doc.text(cell, currentX + columnWidths[index] / 2, currentY + rowHeight / 2 + 3, {
-  //         align: 'center',
-  //       });
-
-  //       // Draw cell border
-  //       doc.rect(currentX, currentY, columnWidths[index], rowHeight);
-
-  //       currentX += columnWidths[index];
-  //     });
-
-  //     currentY += rowHeight; // Move to the next row
-
-  //     // Add new page if necessary
-  //     if (currentY > doc.internal.pageSize.getHeight() - 20) {
-  //       doc.addPage();
-  //       currentY = tableStartY;
-  //     }
-  //   });
-
-  //   doc.save('table-data.pdf');
-  // }
-
-
-
+  
   exportTOPdf() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -360,12 +284,12 @@ export class HomeComponent implements OnInit {
 
     // Add Image at the top (Centered)
     const imageUrl = this.imageLogo; // Replace with your image URL or base64 string
-    const imageWidth = 40;
-    const imageHeight = 40;
+    const imageWidth = 30;
+    const imageHeight = 30;
     const imageX = (pageWidth - imageWidth) / 2;
     doc.addImage(imageUrl, 'JPEG', imageX, imageTopSpace, imageWidth, imageHeight);
 
-    currentY += imageHeight + 5; // Move Y position after the image
+    currentY += imageHeight + 2; // Move Y position after the image
 
     // Add Headings
     doc.setFontSize(16);
@@ -415,10 +339,13 @@ export class HomeComponent implements OnInit {
 
     currentY += 5;
     currentY = this.addTable(doc, secondTable, secondTableWidths, currentY, marginX, rowHeight, pageHeight);
+
+    currentY += this.addFooter(doc, pageWidth, pageHeight);
     currentY += 25;
+    
 
     // Third Table (Headers)
-    const headers = ['S. No', 'Item Description', 'Quantity(A)', 'Price Per Item(B)', 'TOTAL(C=A*B)'];
+    const headers = ['S. No', 'Category', 'Price', 'Quantity', 'Amount'];
     if (currentY + rowHeight > pageHeight) {
       doc.addPage();
       currentY = marginY;
@@ -428,13 +355,17 @@ export class HomeComponent implements OnInit {
 
     // Third Table (Data)
     const rowsToExport = this.selectedRows.length > 0 ? this.selectedRows : this.tableData;
+    let totalAmount = 0;
     rowsToExport.forEach((data, index) => {
+      const rowAmount = parseFloat(data.amount) * parseFloat(data.quantity || "1") || 0; // Calculate the row amount
+    totalAmount += rowAmount; // Add to the total
+
       const row = [
         (index + 1),
-        data.itemDescription || '',
-        data.quantity || "N/A",
-        data.price || "N/A",
-        (data.quantity * data.price).toFixed(2) || "N/A"
+        data.categoryName || '',       
+        "R"+data.amount || "N/A",
+        data.quantity || "1",
+        "R"+(1 * data.amount).toFixed(2) || "N/A"
       ];
 
       if (currentY + rowHeight > pageHeight) {
@@ -444,11 +375,70 @@ export class HomeComponent implements OnInit {
       this.drawRow(doc, row, columnWidths, currentY, marginX, rowHeight, false);
       currentY += rowHeight;
     });
+    if (currentY + rowHeight > pageHeight) {
+      doc.addPage();
+      currentY = marginY;
+    }
+    const totalRow = [
+      '', // S. No
+      '', // Category
+      '', // Price
+      'Total', // Quantity (used as the label)
+      'R'+totalAmount.toFixed(2) // Total Amount
+    ];
+    this.drawRow(doc, totalRow, columnWidths, currentY, marginX, rowHeight, true);  
+
+    // Add the Payment Details table
+    currentY = this.addPaymentDetailsTable(doc, currentY + 20, marginX, pageWidth, pageHeight);
+  
+    this.addFooter(doc, pageWidth, pageHeight);
 
     // Save the PDF (single download for all pages)
     doc.save("invoice.pdf");
   }
 
+  addPaymentDetailsTable(doc: any, currentY: number, marginX: number, pageWidth: number, pageHeight: number) {
+    const rowHeight = 10;
+    const columnWidths = [50, pageWidth - 50 - marginX * 2]; // Adjust widths to match the table layout
+  
+    // Check for page break before drawing the table
+    if (currentY + rowHeight * 5 > pageHeight) {
+      doc.addPage();
+      currentY = 10;
+    }
+  
+    // Add table title
+    const title = "Payment Details";
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text(title, pageWidth / 2, currentY + rowHeight / 2, { align: "center" });
+    currentY += rowHeight;
+  
+    // Table Data
+    const tableData = [
+      ["Bank:", "FNB"],
+      ["A/C Name:", "THIRDEYE IT CONSULTING SERVICES"],
+      ["A/C No.", "62797746876"],
+      ["A/C Type", "Business Account"],
+    ];
+  
+    // Draw the rows
+    tableData.forEach((row) => {
+      let currentX = marginX;
+  
+      row.forEach((cell, index) => {
+        doc.setFont("helvetica", index === 0 ? "bold" : "normal");
+        doc.text(cell, currentX + 2, currentY + rowHeight / 2 + 3, { align: "left" }); // Add padding and alignment
+        doc.rect(currentX, currentY, columnWidths[index], rowHeight); // Draw cell borders
+        currentX += columnWidths[index];
+      });
+  
+      currentY += rowHeight;
+    });
+  
+    return currentY; // Return the updated Y position
+  }
+  
   // Helper function to add a table
   addTable(doc: any, tableData: any, columnWidths: any, currentY: any, marginX: any, rowHeight: any, pageHeight: any) {
     tableData.forEach((row: any) => {
@@ -480,6 +470,27 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  addFooter(doc: any, pageWidth: number, pageHeight: number) {
+    const footerY = pageHeight - 20; // Position the footer 20 units from the bottom
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100); // Gray text color
+  
+    // Footer content
+    const footerText = [
+      "ThirdEye IT Consulting Services (Pty) Ltd",
+      "Reg. No.: 2018/589295/07, 51 Turley Road, Lonehill, Sandton 2191.",
+      "Contact Tel: +27 110837910,    Email: za.hr@thirdeyeitconsulting.com",
+      "Website: https://thirdeyeit.co.za"
+    ];
+  
+    // Draw footer lines
+    footerText.forEach((line, index) => {
+      doc.text(line, pageWidth / 2, footerY + index * 5, { align: "center" });
+    });
+    doc.setTextColor(0); // Default color: black
+    return footerY;
+  }
 
   public logout(): void {
     localStorage.removeItem("users");
