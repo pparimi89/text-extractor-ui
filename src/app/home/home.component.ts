@@ -16,6 +16,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'; // Import HttpCl
 import { constants } from '../app.config';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationComponent } from '../confirmation/confirmation.component';
+import { ToastrService } from 'ngx-toastr';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 
 
 // For dynamic progressbar demo
@@ -28,7 +30,8 @@ export interface FilePreview {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, MatToolbarModule, MatDialogModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule, NgClass],
+  imports: [RouterModule, NgxSpinnerModule,
+    MatToolbarModule, MatDialogModule, FormsModule, CommonModule, IconFieldModule, InputIconModule, TableModule, FileUploadModule, ButtonModule, ProgressBarModule, ConfirmDialogModule, DropdownModule, NgClass],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: []
@@ -58,8 +61,9 @@ export class HomeComponent implements OnInit {
   userId?: number;
   categoryData: any[] = [];
   imageLogo: string = "";
+  loadingSpinner: boolean = false;
 
-  constructor(private dialog: MatDialog, private router: Router, private http: HttpClient) { }
+  constructor(public spinner: NgxSpinnerService, private dialog: MatDialog, private router: Router, private http: HttpClient, public toastr: ToastrService,) { }
 
   ngOnInit(): void {
     this.imageLogo = "../assets/logo.jpeg";
@@ -72,7 +76,6 @@ export class HomeComponent implements OnInit {
     } else {
       this.router.navigate(['/signin']);
     }
-
     this.getCategories();
     this.getUserBillData(this.userId);
   }
@@ -120,7 +123,7 @@ export class HomeComponent implements OnInit {
 
   public chooseFiles(): void {
     if (!this.selectedItem) {
-      alert("Please select Category");
+      this.toastr.warning("Please select Category");
       return;
     }
     const fileInput = document.createElement('input');
@@ -201,6 +204,8 @@ export class HomeComponent implements OnInit {
 
 
   private uploadPayload(): void {
+    this.loadingSpinner = true;
+    this.loadSpinner();
     const formData = new FormData();
     // Append files to formData
     this.files.forEach((file) => {
@@ -218,14 +223,15 @@ export class HomeComponent implements OnInit {
     this.http
       .post<any>(`${constants.baseUrl}${apiUrl}`, formData).subscribe({
         next: res => {
-          if (res) {
-            console.log("response", res);
+          if (res && res.code === "000") {
+            this.loadingSpinner = false;
             this.fileAmount = res.totalAmount;
             this.openConfirmationDialog();
           } else {
             throw new Error(res.message || 'Unknown error occurred.');
           }
         }, error: err => {
+          this.toastr.error("Something went wrong!")
           throw new Error(err.message || 'Unknown error occurred.');
         }
       }
@@ -265,7 +271,7 @@ export class HomeComponent implements OnInit {
     this.searchValue = ''
   }
 
-  
+
   exportTOPdf() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -278,7 +284,7 @@ export class HomeComponent implements OnInit {
 
     const firstTableWidths = [115, 70];
     const secondTableWidths = [55, 130];
-    const columnWidths = [15,45, 35, 50, 40]; // Column widths for the third table
+    const columnWidths = [15, 45, 35, 50, 40]; // Column widths for the third table
 
     let currentY = marginY;
 
@@ -342,7 +348,7 @@ export class HomeComponent implements OnInit {
 
     currentY += this.addFooter(doc, pageWidth, pageHeight);
     currentY += 25;
-    
+
 
     // Third Table (Headers)
     const headers = ['S. No', 'Category', 'Price', 'Quantity', 'Amount'];
@@ -358,14 +364,14 @@ export class HomeComponent implements OnInit {
     let totalAmount = 0;
     rowsToExport.forEach((data, index) => {
       const rowAmount = parseFloat(data.amount) * parseFloat(data.quantity || "1") || 0; // Calculate the row amount
-    totalAmount += rowAmount; // Add to the total
+      totalAmount += rowAmount; // Add to the total
 
       const row = [
         (index + 1),
-        data.categoryName || '',       
-        "R"+data.amount || "N/A",
+        data.categoryName || '',
+        "R" + data.amount || "N/A",
         data.quantity || "1",
-        "R"+(1 * data.amount).toFixed(2) || "N/A"
+        "R" + (1 * data.amount).toFixed(2) || "N/A"
       ];
 
       if (currentY + rowHeight > pageHeight) {
@@ -384,13 +390,13 @@ export class HomeComponent implements OnInit {
       '', // Category
       '', // Price
       'Total', // Quantity (used as the label)
-      'R'+totalAmount.toFixed(2) // Total Amount
+      'R' + totalAmount.toFixed(2) // Total Amount
     ];
-    this.drawRow(doc, totalRow, columnWidths, currentY, marginX, rowHeight, true);  
+    this.drawRow(doc, totalRow, columnWidths, currentY, marginX, rowHeight, true);
 
     // Add the Payment Details table
     currentY = this.addPaymentDetailsTable(doc, currentY + 20, marginX, pageWidth, pageHeight);
-  
+
     this.addFooter(doc, pageWidth, pageHeight);
 
     // Save the PDF (single download for all pages)
@@ -400,20 +406,20 @@ export class HomeComponent implements OnInit {
   addPaymentDetailsTable(doc: any, currentY: number, marginX: number, pageWidth: number, pageHeight: number) {
     const rowHeight = 10;
     const columnWidths = [50, pageWidth - 50 - marginX * 2]; // Adjust widths to match the table layout
-  
+
     // Check for page break before drawing the table
     if (currentY + rowHeight * 5 > pageHeight) {
       doc.addPage();
       currentY = 10;
     }
-  
+
     // Add table title
     const title = "Payment Details";
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.text(title, pageWidth / 2, currentY + rowHeight / 2, { align: "center" });
     currentY += rowHeight;
-  
+
     // Table Data
     const tableData = [
       ["Bank:", "FNB"],
@@ -421,24 +427,24 @@ export class HomeComponent implements OnInit {
       ["A/C No.", "62797746876"],
       ["A/C Type", "Business Account"],
     ];
-  
+
     // Draw the rows
     tableData.forEach((row) => {
       let currentX = marginX;
-  
+
       row.forEach((cell, index) => {
         doc.setFont("helvetica", index === 0 ? "bold" : "normal");
         doc.text(cell, currentX + 2, currentY + rowHeight / 2 + 3, { align: "left" }); // Add padding and alignment
         doc.rect(currentX, currentY, columnWidths[index], rowHeight); // Draw cell borders
         currentX += columnWidths[index];
       });
-  
+
       currentY += rowHeight;
     });
-  
+
     return currentY; // Return the updated Y position
   }
-  
+
   // Helper function to add a table
   addTable(doc: any, tableData: any, columnWidths: any, currentY: any, marginX: any, rowHeight: any, pageHeight: any) {
     tableData.forEach((row: any) => {
@@ -475,7 +481,7 @@ export class HomeComponent implements OnInit {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100); // Gray text color
-  
+
     // Footer content
     const footerText = [
       "ThirdEye IT Consulting Services (Pty) Ltd",
@@ -483,7 +489,7 @@ export class HomeComponent implements OnInit {
       "Contact Tel: +27 110837910,    Email: za.hr@thirdeyeitconsulting.com",
       "Website: https://thirdeyeit.co.za"
     ];
-  
+
     // Draw footer lines
     footerText.forEach((line, index) => {
       doc.text(line, pageWidth / 2, footerY + index * 5, { align: "center" });
@@ -495,6 +501,21 @@ export class HomeComponent implements OnInit {
   public logout(): void {
     localStorage.removeItem("users");
     this.router.navigate(['/signin']);
+  }
+
+  private loadSpinner(): void {
+    if (this.loadingSpinner) {
+      this.spinner.show(undefined, {
+        type: 'ball-climbing-dot',
+        bdColor: 'rgba(51,51,51,0.8)',
+        fullScreen: true,
+        color: 'fff',
+        size: 'medium'
+      })
+    } else {
+      this.loadingSpinner = false
+    }
+
   }
 
 }

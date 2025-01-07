@@ -34,6 +34,7 @@
               "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/ngx-toastr/toastr.css",
+              "node_modules/ngx-spinner/animations/ball-climbing-dot.css",
               "@angular/material/prebuilt-themes/indigo-pink.css"
             ],
             "scripts": [],
