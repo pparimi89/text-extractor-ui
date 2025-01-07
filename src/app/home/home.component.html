@@ -22,26 +22,28 @@
 </mat-toolbar>
 
 <div class="main">
-
-  <div class="drop-down">
-    <p-dropdown
-      [options]="categoryData"
-      optionLabel="name"
-      optionValue="id"
-      [showClear]="true"
-      [filter]="true"
-      filterBy="name"
-      [appendTo]="'body'"
-      (onChange)="onCategoryChange($event)"
-      placeholder="Select a category"
-    />
+  <div class="header">
+    <h3 class="text-center">Invoice Automation</h3>
   </div>
 
   <div class="card upload-container">
     <!-- Header Buttons -->
     <div class="upload-header">
+      <div>
+        <p-dropdown
+          [options]="categoryData"
+          optionLabel="name"
+          optionValue="id"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="name"
+          [appendTo]="'body'"
+          (onChange)="onCategoryChange($event)"
+          placeholder="Select a category"
+        />
+      </div>
       <button class="btn btn-primary" (click)="chooseFiles()">
-        Choose files
+        Choose File
       </button>
       <button
         class="btn btn-success"
@@ -55,7 +57,7 @@
         (click)="clearFiles()"
         [disabled]="files.length === 0"
       >
-        Clear all
+        Clear All
       </button>
     </div>
 
