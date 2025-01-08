@@ -8,6 +8,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { HttpClient } from '@angular/common/http'; // Import HttpClient
 import { constants } from '../app.config';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
 
 
 interface loginModel {
@@ -25,7 +27,7 @@ interface signupModel {
 @Component({
   selector: 'app-signin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, IconFieldModule, InputIconModule, TooltipModule, InputTextModule],
+  imports: [CommonModule, NgxSpinnerModule, ReactiveFormsModule, IconFieldModule, InputIconModule, TooltipModule, InputTextModule],
   templateUrl: './signin.component.html',
   styleUrl: './signin.component.scss'
 })
@@ -43,8 +45,11 @@ export class SigninComponent implements OnInit {
   showPassword: boolean = false;
   loginModel: loginModel = {}
   signupModel: signupModel = {};
+  loadingSpinner: boolean = false;
 
   constructor(
+    public toastr: ToastrService,
+    private spinner: NgxSpinnerService,
     private http: HttpClient,
     private formBuilder: FormBuilder,
     private router: Router) { }
@@ -85,62 +90,100 @@ export class SigninComponent implements OnInit {
     this.isLoginForm = !this.isLoginForm;
   }
 
-  public togglePassword(): void {
+  public togglePasswordSignUp(): void {
     this.showPassword = !this.showPassword;
+    this.hidePassword = !this.hidePassword;
   }
 
-  public togglePasswordVisibility(): void {
+  public togglePasswordLogin(): void {
+    this.showPassword = !this.showPassword;
     this.hidePassword = !this.hidePassword;
   }
 
   public userLogin(): void {
+    if (!this.loginForm.get('phoneOrEmail')?.value) {
+      this.toastr.error("Please enter Email or Phone");
+      return;
+    }
+    if (!this.loginForm.get('password')?.value) {
+      this.toastr.error("Please enter password");
+      return;
+    }
     this.loginModel.phoneOrEmail = this.loginForm.get('phoneOrEmail')?.value;
     this.loginModel.password = this.loginForm.get('password')?.value;
-
+    this.loadingSpinner = true;
+    this.loadSpinner();
     this.http.post<any>(`${constants.baseUrl}fetch-user`, this.loginModel).subscribe({
       next: response => {
         if (response) {
+          this.loadingSpinner=false;
           localStorage.setItem("users", JSON.stringify(response));
-          alert('Login successful!');
           this.router.navigate(['/home']);
         }
       }, error: err => {
-        console.log("err", err.ok);
         if (err.ok == false) {
-          alert('User login failed !');
+          this.loadingSpinner = false;
         }
+        this.toastr.error("Something went wrong!");
       }
     })
   }
 
   public userSignup(): void {
-    if (this.signupForm.invalid) {
-      alert("Please fill in all required fields.");
+    if (!this.signupForm.get('name')?.value) {
+      this.toastr.error("Please enter Name");
+      return;
+    }
+    if (!this.signupForm.get('email')?.value) {
+      this.toastr.error("Please enter Email");
+      return;
+    }if (!this.signupForm.get('mobile')?.value) {
+      this.toastr.error("Please enter Phone");
+      return;
+    }
+    if (!this.signupForm.get('password')?.value) {
+      this.toastr.error("Please enter password");
       return;
     }
     this.signupModel.name = this.signupForm.get('name')?.value;
     this.signupModel.email = this.signupForm.get('email')?.value;
     this.signupModel.phone = this.signupForm.get('mobile')?.value;
     this.signupModel.password = this.signupForm.get('password')?.value;
-    
-    
+    this.loadingSpinner=true;
+    this.loadSpinner()
     this.http.post<any>(`${constants.baseUrl}create-user`, this.signupModel).subscribe({
       next: response => {
         if (response && response.code === "000") {
-          alert('Signup successful! Please login to continue.');
+          this.loadingSpinner=false;
+          this.toastr.success("User created successfully");
           this.toggleForm();
         } else {
-          alert("Failed to create User");
+          this.toastr.error("Failed to create User");
         }
 
       }, error: err => {
         if (err.ok == false) {
           alert("Something went wrong !")
         }
+        this.toastr.error("Something went wrong!");
       }
     })
 
   }
 
+  private loadSpinner(): void {
+    if (this.loadingSpinner) {
+      this.spinner.show(undefined, {
+        type: 'ball-climbing-dot',
+        bdColor: 'rgba(51,51,51,0.8)',
+        fullScreen: true,
+        color: 'fff',
+        size: 'medium'
+      })
+    } else {
+      this.loadingSpinner = false
+    }
+
+  }
 
 }

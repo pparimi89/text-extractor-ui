@@ -1,3 +1,9 @@
+<div *ngIf="loadingSpinner">
+  <ngx-spinner >
+    <p style="font-size: 20px; color: white">Processing...</p>
+  </ngx-spinner>
+</div>
+
 <div *ngIf="data">
   <mat-dialog-content>
     <div class="dialog-header">

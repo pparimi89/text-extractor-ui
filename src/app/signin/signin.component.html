@@ -1,3 +1,9 @@
+<div *ngIf="loadingSpinner">
+  <ngx-spinner >
+    <p style="font-size: 20px; color: white">Processing...</p>
+  </ngx-spinner>
+</div>
+
 <div class="bg-container">  
   <div class="title">
     <img src="https://thirdeyeit.co.za/wp-content/uploads/thirdeyeit_consulting_services-300x67.png">  
@@ -24,14 +30,22 @@
           </div>
         </div>
 
-        <div class="password-field-container ">
+        <div class="password-field-container mt-3">
           <label for="password" class="label-style">Enter Password <span class="text-danger">*</span></label>
-          <div class="password-input-container">
+          <!-- <div class="password-input-container">
             <input type="password" id="login-password" pTooltip="Enter your Password" tooltipPosition="bottom"
               placeholder="Enter Password" formControlName="password" [type]="hidePassword ? 'password' : 'text'" />
             <span type="button" class="password-toggle-button" (click)="togglePasswordVisibility()">{{hidePassword ?
               'show' : 'hide'}}</span>
-          </div>
+          </div> -->
+          <p-iconField iconPosition='right'>
+            <input type="password" id="login-password" pTooltip="Enter your Password" tooltipPosition="bottom"
+              placeholder="Enter Password" formControlName="password" [type]="hidePassword ? 'password' : 'text'" />
+              <p-inputIcon
+              (click)="togglePasswordLogin()"
+              [styleClass]="showPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"
+            />
+        </p-iconField>
           <div
             *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)">
             <small style="color: rgb(225, 17, 17);" *ngIf="loginForm.get('password')?.errors?.['required']">Password
@@ -95,13 +109,22 @@
 
           <div class="field-container">
             <label class="email" for="signup-password">Enter Password<span class="text-danger">*</span></label>
-            <div class="password-input-container">
-              <input type="password" id="signup-password" pTooltip="Enter Password" tooltipPosition="bottom"
+            <!-- <div class="password-input-container"> -->
+              <!-- <input type="password" id="signup-password" pTooltip="Enter Password" tooltipPosition="bottom"
                 placeholder="Enter Password" formControlName="password"
                 [type]="hidePassword ? 'password' : 'text'" />
-              <span type="button" class="password-toggle-button" (click)="togglePasswordVisibility()">{{hidePassword
+              <span type="button" class="password-toggle-button" (click)="togglePasswordSignUp()">{{hidePassword
                 ? 'show' : 'hide'}}</span>
-            </div>
+            </div> -->
+            <p-iconField iconPosition='right'>
+              <input type="password" id="signup-password" pTooltip="Enter Password" tooltipPosition="bottom"
+              placeholder="Enter Password" formControlName="password"
+              [type]="hidePassword ? 'password' : 'text'" />
+                <p-inputIcon
+                (click)="togglePasswordLogin()"
+                [styleClass]="showPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"
+              />
+          </p-iconField>
 
             <div
               *ngIf="signupForm.get('password')?.invalid && (signupForm.get('password')?.dirty || signupForm.get('password')?.touched)">
