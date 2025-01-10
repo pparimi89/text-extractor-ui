@@ -55,6 +55,12 @@ export class SigninComponent implements OnInit {
     private router: Router) { }
 
   ngOnInit(): void {
+    this.http.get<any>(`${constants.baseUrl}awake`).subscribe({
+      next: res => {      
+      }, error: err => {
+        console.log(err);
+      }
+    })
     this.buildForm();
     this.logoImage = 'https://thirdeyeit.co.za/wp-content/uploads/elementor/thumbs/integration2-qdyy4xxyqnhr265hvn4g8s0sz1pn78o3i2jldhi58g.jpg';
     let userData = localStorage.getItem("users");
